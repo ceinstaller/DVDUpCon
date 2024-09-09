@@ -1,0 +1,25 @@
+2024-09-08 20:45:06,041 - INFO - Begin processing:
+2024-09-08 20:45:15,783 - INFO - File - job.wmv
+2024-09-08 20:45:15,803 - INFO - GPU - NVIDIA GeForce RTX 3070
+2024-09-08 20:45:15,803 - INFO - Codec - wmv2
+2024-09-08 20:45:15,803 - INFO - Width - 320
+2024-09-08 20:45:15,803 - INFO - Height - 240
+2024-09-08 20:45:15,803 - INFO - Aspect Ratio - 4:3
+2024-09-08 20:45:15,804 - INFO - Duration - 2.4 minutes
+2024-09-08 20:45:15,804 - INFO - Source Frame Rate - 29.97002997002997
+2024-09-08 20:45:20,505 - INFO - Upscaler - SRMD
+2024-09-08 20:45:23,019 - INFO - Scale Factor - 2
+2024-09-08 20:45:30,902 - INFO - Interpolation - Y
+2024-09-08 20:45:30,903 - INFO - Extracting frames
+2024-09-08 20:45:30,903 - INFO - .\tools\ffmpeg\ffmpeg -v quiet -hwaccel auto -y -i "job.wmv" -pix_fmt rgb24 extract\extracted_%08d.png
+2024-09-08 20:45:39,345 - INFO - Frame Count - 4342
+2024-09-08 20:45:39,359 - INFO - Beginning upscale process
+2024-09-08 20:45:39,359 - INFO - .\tools\srmd\srmd-ncnn-vulkan -n 3 -s 2 -t 128 -m .\tools\srmd\models-srmd -g 0 -j 1:2:2 -f png -i .\extract -o .\upscale
+2024-09-08 20:49:05,466 - INFO - Begining interpolation process
+2024-09-08 20:49:05,466 - INFO - .\tools\rife\rife-ncnn-vulkan -i .\upscale -o .\insert -g 0 -j 1:1:1 -f extracted_%08d.png
+2024-09-08 20:50:46,367 - INFO - Assembling upscaled frames
+2024-09-08 20:50:46,367 - INFO - .\tools\ffmpeg\ffmpeg -v quiet -r 59.94005994005994 -hwaccel auto -y -f image2 -i .\insert\extracted_%08d.png -vcodec libx264 -pix_fmt yuv420p -preset slow -crf 17 -vf pad=ceil(iw/2)*2:ceil(ih/2)*2,setdar=4/3 -tune film .\stage\intermediate.mkv
+2024-09-08 20:51:02,253 - INFO - Assembling video
+2024-09-08 20:51:02,253 - INFO - .\tools\ffmpeg\ffmpeg -v quiet -hwaccel auto -y -i .\stage\intermediate.mkv -i "job.wmv" -map 0:v? -map 1:a? -map 1:s? -map 1:d? -map 1:t? -c copy -map_metadata 0 -movflags use_metadata_tags ".\output\job_output.mkv"
+2024-09-08 20:51:02,325 - INFO - Deleting Files
+2024-09-08 20:51:05,519 - INFO - Processing complete!

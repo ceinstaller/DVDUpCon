@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="css/style.css" />
+        <title>DVDUpCon Manual</title>
+    </head>
+
+    <body>
+        <!-- header element consisting of a logo and a heading -->
+        <header>
+            <div class="logo-wrapper">
+                <img
+                    src="images/DVDUpCon_Logo_Small.png"
+                    alt="DVDUpCon Logo"
+                />
+            </div>
+            <h1>DVDUpCon Manual</h1>
+        </header>
+        <main class="main">
+            <!-- a sidebar consisting of menu of documentation page -->
+            <aside class="table-of-content">
+                <h2 class="menu-heading">Table of Contents</h2>
+
+                <!-- main menu of table of content -->
+                <ul class="main-menu">
+                    <li class="menu-sub-heading"><a href="#intro">Introduction</a></li>
+                    
+                    <li class="menu-sub-heading"><a href="#usage">Usage</a></li>
+                    <!-- submenu  -->
+                    <ul class="sub-menu">
+                        <li><a href="#usage-upscaler">Upscaler</a></li>
+                        <li><a href="#usage-scale">Scale Factor</a></li>
+                        <li><a href="#usage-interpolation">Interpolation</a></li>
+                    </ul>
+
+                    <li class="menu-sub-heading"><a href="#settings">Settings</a></li>
+                    <!-- submenu  -->
+                    <ul class="sub-menu">
+                        <li><a href="#settings-general">General</a></li>
+                        <li><a href="#settings-srmd">SRMD</a></li>
+                        <li><a href="#settings-realsr">RealSR</a></li>
+                        <li><a href="#settings-rife">RIFE</a></li>
+                    </ul>
+
+                    <li class="menu-sub-heading"><a href="#trouble">Troubleshooting</a></li>
+                    <!-- submenu  -->
+                    <ul class="sub-menu">
+                        <li><a href="#trouble-recover">Recovery</a></li>
+                        <li><a href="#trouble-restart">Restarting</a></li>
+                    </ul>
+
+                    <li class="menu-sub-heading"><a href="#acknowledgment">Acknowledgments</a></li>
+                </ul>
+            </aside>
+
+            <!-- main content of documentation page will be here -->
+
+            <section class="main-content">
+                <h2 id="intro">What is DVDUpCon?</h2>
+                <p>
+                    DVDUpCon is an open source Windows program for upconverting videos using pre-trained neural networks.
+                    You can select your upscaler, scale factor and whether to use frame interpolation.
+                    You can select from SRMD or RealSR for upscaling.
+                    Frame interpolation is achieved using RIFE.
+                </p>
+                <p>
+                    Notes:
+                </p>
+                <p>
+                    <ul>
+                        <li>Testing was done on a NVidia GPU and for now is a requirement.</li>
+                        <li>The primary focus is on real world video. Future versions may add new upscalers and models.</li>
+                        <li>Version 1.0 is a command line tool but a future version will have a Windows GUI.</li>
+                    </ul>
+                </p>
+ 
+                <hr class="section-break" />
+
+                <h2 id="usage">Usage</h2>
+                <p>
+                    Extract the zip file to the directory of choice and run dvdupcon.exe.
+                    It will check for the presence of a NVidia GPU and display the current power settings.
+                    (If desired, a lower power limit can be set using the 'nvidia-smi' command line tool with minimal impact to upscaler performance.)
+                    You will be asked to enter the location of the video file you'd like to upconvert.
+                    If the file selected is a valid video file, basic information about the file will be displayed.
+                    You can then select whether to continue with the upscale of the video.
+                    The upconverted video and corresponding log file will be in the 'output' directory after job completion.
+                </p>
+
+                <h3 id="usage-upscaler">Upscaler</h3>
+                <p>
+                    You can select from two different upscalers: SRMD or RealSR.
+                    SRMD (Super-Resolution Network for Multiple Degradations) is an NCNN neural network for image upscaling.
+                    While not as high quality as RealSR, it is faster.
+                    RealSR (Real-World Super-Resolution) is also an NCNN neural network for image upscaling.
+                    It produces higher quality output but takes longer to process images.
+                </p>
+      
+                <h3 id="usage-scale">Scale Factor</h3>
+                <p>
+                    Scale factor determines the target resolution of the upscaled video.
+                    It can either be double or quadruple the original resolution.
+                </p>
+                
+                <h3 id="usage-interpolation">Interpolation</h3>
+                <p>
+                    Interpolation is done using RIFE (Real-Time Intermediate Flow Estimation), another NCNN neural network.
+                    Using interpolation will add frames 'in between' the frames of the original video.
+                    This means a 24 fps video will become a 48 fps video and a 30 fps video will become a 60 fps video.
+                </p>
+                
+                <hr class="section-break" />
+                
+                <h2 id="settings">Settings</h2>
+                <p>
+                    Additional options for the upscaling process can be set in the settings.ini file located in the same directory as dvdupcon.exe.
+                    The default values should work for most situations, but can be modified to suit different systems and preferences.
+                </p>
+
+                <h3 id="settings-general">General</h3>
+                <p>
+                    <pre class="code-block">
+                        <code>
+                            SaveFiles = No
+                        </code>
+                    </pre>
+                    By default files created during the upscaling process are deleted at the end of the process.
+                    Change this to 'Yes' to preserve the intermediate files created during the upscale job.
+                    This can used for troubleshooting or for analysis of individual frames.
+                    Be sure to delete these files before starting a new run.
+                    <br />
+                    Intermediate files are located in these folders:
+                    <ul>
+                        <li>extract (Don't delete the recovery directory)</li>
+                        <li>upscale</li>
+                        <li>insert</li>
+                        <li>stage</li>
+                    </ul>
+                </p>
+
+                <h3 id="settings-srmd">SRMD</h3>
+                <p>
+                    <pre class="code-block">
+                        <code>
+                            Noise = 3
+                        </code>
+                    </pre>
+                    The value of denoising applied during the image upscaling process.
+                    -1 for no denoising, 1-10 to apply denoising, with higher value being more aggressive.
+                </p>
+
+                <p>
+                    <pre class="code-block">
+                        <code>
+                            Tile = 128
+                        </code>
+                    </pre>
+                    Tile size to be used during upscale process.
+                    For higher VRAM GPU, larger value can be set.
+                    Should be a multiple of 32. 
+                </p>
+
+                <p>
+                    <pre class="code-block">
+                        <code>
+                            GPU = 0
+                        </code>
+                    </pre>
+                    GPU device to be used.
+                </p>
+
+                <p>
+                    <pre class="code-block">
+                        <code>
+                            Threads = 1:2:2
+                        </code>
+                    </pre>
+                    Number of threads to use for each step of the upscaling process: image decode, upscale, image encode.
+                    Can be increased for high VRAM GPU.
+                    If errors or black images in output file occur, decrease values.
+                </p>
+
+                <p>
+                    <pre class="code-block">
+                        <code>
+                            TTA = No
+                        </code>
+                    </pre>
+                    Whether to use TTA (Test-Time Augmentation) during upscale process.
+                    TTA will generate multiple versions of upscaled image and average them together.
+                    This can produce a better upscale result but at a greatly increased processing time.
+                </p>
+
+                <h3 id="settings-realsr">RealSR</h3>
+                <p>
+                    <pre class="code-block">
+                        <code>
+                            Tile = 128
+                        </code>
+                    </pre>
+                    Tile size to be used during upscale process.
+                    For higher VRAM GPU, larger value can be set.
+                    Should be a multiple of 32. 
+                </p>
+
+                <p>
+                    <pre class="code-block">
+                        <code>
+                            GPU = 0
+                        </code>
+                    </pre>
+                    GPU device to be used.
+                </p>
+
+                <p>
+                    <pre class="code-block">
+                        <code>
+                            Threads = 1:2:2
+                        </code>
+                    </pre>
+                    Number of threads to use for each step of the upscaling process: image decode, upscale, image encode.
+                    Can be increased for high VRAM GPU.
+                    If errors or black images in output file occur, decrease values.
+                </p>
+
+                <p>
+                    <pre class="code-block">
+                        <code>
+                            TTA = No
+                        </code>
+                    </pre>
+                    Whether to use TTA (Test-Time Augmentation) during upscale process.
+                    TTA will generate multiple versions of upscaled image and average them together.
+                    This can produce a better upscale result but at a greatly increased processing time.
+                </p>
+
+                <h3 id="settings-rife">RIFE</h3>
+                <p>
+                    <pre class="code-block">
+                        <code>
+                            GPU = 0
+                        </code>
+                    </pre>
+                    GPU device to be used.
+                </p>
+
+                <p>
+                    <pre class="code-block">
+                        <code>
+                            Threads = 1:2:2
+                        </code>
+                    </pre>
+                    Number of threads to use for each step of the interpolation process: image decode, upscale, image encode.
+                    Can be increased for high VRAM GPU.
+                    If errors or black images in output file occur, decrease values.
+                </p>
+
+                <hr class="section-break" />
+
+                <h2 id="trouble">Troubleshooting</h2>
+                <p>
+                    While every attempt has been made to make sure everything 'just works', sometimes things do go wrong.
+                </p>                
+
+                <h3 id="trouble-recover">Recovery</h3>
+                <p>
+                    If something goes wrong during an upconversion, such as a power loss, DVDUpCon will attempt to recover the job.
+                    It will look at the log file and analyze the relevant directories in order to determine where it needs to restart.
+                    Simply re-run dvdupcon.exe and follow the prompts.
+                    Most scenarios should be recoverable, but no guarantee can be made for every possible error.
+                </p>
+
+                <h3 id="trouble-restart">Restart</h3>
+                <p>
+                    If a job fails and can't be recovered, a full restart may be required.
+                    From the dvdupcon directory, delete the dvdupcon.log file if it exists.
+                    Delete the files from the following directories:
+                    <ul>
+                        <li>extract/recovery</li>
+                        <li>extract (Don't delete the recovery directory)</li>
+                        <li>insert</li>
+                        <li>upscale</li>
+                        <li>stage</li>
+                        <li>output</li>
+                    </ul>
+                    Alternatively, the entire dvdupcon directory can be deleted and recreated from the original archive.
+                </p>
+
+
+                <h2 id="acknowledgment">Acknowledgments</h2>
+                <p>
+                    Inspiration for this project came from Video2X, an open source video upscaler.
+                    DVDUpCon exists to solve some small issues that arose from using Video2X.
+                    Specifically, the handling of DAR (Display Aspect Ratio) and recoverability.
+                </p>
+                <p>
+                    The following open source projects are used:
+                </p>
+                <ul>
+                    <li><a href="https://ffmpeg.org/">FFmpeg</a></li>
+                    <li><a href="https://github.com/nihui/srmd-ncnn-vulkan?tab=readme-ov-file">SRMD-NCNN-Vulkan</a></li>
+                    <li><a href="https://github.com/nihui/realsr-ncnn-vulkan">RealSR-NCNN-Vulkan</a></li>
+                    <li><a href="https://github.com/nihui/rife-ncnn-vulkan">RIFE-NCNN-Vulkan</a></li>
+                </ul>
+
+
+
+
+            </section>
+        </main>
+        <footer>
+            <p>
+                DVDUpCon Manual &copy; 2024, Mark Gertgen - Distributed under the MIT License    
+            </p>
+        </footer>
+    </body>
+</html>

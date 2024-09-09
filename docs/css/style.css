@@ -1,0 +1,197 @@
+/* resets the browser default spacing */
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: sans-serif;
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+/* styles the header element */
+header {
+    height: 80px;
+    text-align: center;
+    position: relative;
+    background-color: aliceblue;
+
+    border: 1px solid rgba(0, 0, 0, 0.26);
+    box-shadow: 0px 0px 4px 4px rgba(0, 0, 0, 0.116);
+}
+
+/* styles for logo wrapper*/
+header .logo-wrapper {
+    width: 100px;
+    position: absolute;
+    top: 50%;
+    left: 20px;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+/* styles to fit logo image within the logo wrapper */
+.logo-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* style for the main heading of page */
+header h1 {
+    line-height: 80px;
+    color: #25265e;
+}
+
+.table-of-content {
+    /* remaining width for the main content of page */
+    width: 30%;
+    border: 1px solid rgba(0, 0, 0, 0.137);
+    color: #25265e;
+    padding: 8px;
+    height: 525px;
+    /* makes the sidebar sticky */
+    position: sticky;
+    top: 0;
+}
+
+.menu-heading {
+    margin-bottom: 20px;
+}
+
+.table-of-content ul {
+    /* removes the bullet points in list items */
+    list-style-type: none;
+
+    /* list item marker is placed within the content area of the list item */
+    list-style-position: inside;
+
+    padding-left: 20px;
+    margin-bottom: 12px;
+}
+
+/* styles for sub-heading inside our menu */
+.menu-sub-heading {
+    font-weight: bold;
+    text-decoration: none;
+    margin-bottom: 12px;
+    color: #25265e;
+}
+
+/* provides the bottom spacing for each list item in menu */
+.sub-menu li {
+    margin-bottom: 16px;
+}
+
+/* color the menu item */
+.table-of-content a {
+    color: #25265e;
+}
+
+/* change color of menu items while on hovering */
+.table-of-content a:hover {
+    color: blue;
+}
+
+/* changes color while menu items are clicked */
+.table-of-content a:active {
+    color: red;
+}
+
+.main {
+    /* default width is always 100% */
+    width: 100%;
+
+    /* aligns the sidebar and main content horizontally next to each other */
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    border: 1px solid rgba(0, 0, 0, 0.26);
+    box-shadow: 0px 0px 4px 4px rgba(0, 0, 0, 0.116);
+}
+
+/* styes for the main content */
+.main-content {
+    /* sets 70% width of the document, 25% is occupied by sidebar earlier,
+    and remaining for spacing between them */
+
+    width: 70%;
+    padding: 10px;
+}
+
+h2,
+h3 {
+    color: #25265e;
+    margin-bottom: 12px;
+}
+
+p {
+    margin-bottom: 24px;
+    line-height: 24px;
+}
+
+/* styles the under ordered list in main element */
+.main ul {
+    list-style-position: inside;
+    padding-left: 20px;
+    margin-bottom: 12px;
+}
+
+/* adds margin to top and botton for hr element for spacing */
+.section-break {
+    margin: 24px 0px;
+}
+
+/* styles the code block */
+pre.code-block {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.13);
+    background-color: lightgrey;
+    margin-bottom: 24px;
+    white-space: pre-line;
+}
+
+/* images are allowed to shrink for smaller screen sizes */
+.main-content img {
+    max-width: 100%;
+}
+
+/* style for footer */
+footer {
+    height: 50px;
+    font-size: 14px;
+    text-align: center;
+    color: #25265e;
+    background-color: aliceblue;
+    border: 1px solid rgba(0, 0, 0, 0.26);
+    box-shadow: 0px 0px 4px 4px rgba(0, 0, 0, 0.116);
+}
+
+/* provide line-height same as height of footer to vertically center */
+footer p {
+    line-height: 50px;
+}
+
+/* adding media query for responsiveness  */
+
+@media screen and (max-width: 672px) {
+    /* the sidebar and content are stacked on top of each other */
+    .main {
+        flex-direction: column;
+    }
+
+    /* takes the full width of the document */
+    .table-of-content {
+        width: 100%;
+        position: relative;
+    }
+
+    /* takes the full width of document */
+    .main-content {
+        width: 100%;
+    }
+}
