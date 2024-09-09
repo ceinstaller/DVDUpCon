@@ -3,6 +3,8 @@
 <img src="./images/DVDUpCon_Logo.png" alt="DVDUpCon Logo" width="488" height="132"/>
 
 ![GitHub top language](https://img.shields.io/github/languages/top/ceinstaller/DVDUpCon)
+![GitHub last commit](https://img.shields.io/github/last-commit/ceinstaller/DVDUpCon)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 </div>
 
