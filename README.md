@@ -6,11 +6,11 @@
 ![GitHub last commit](https://img.shields.io/github/last-commit/ceinstaller/DVDUpCon)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-</div>
-
 DVDUpCon is an open source tool for upconverting video files.
 
-## What and Why
+</div>
+
+## About
 
 After using other open source and commercial tools, I was stymied by two issues.  First was the incorrect handling of DAR (Display Aspect Ratio), the second was smooth recovery from failed runs.  In order to address these issues, I decided to write my own program in Python.  My initial focus is real world video versus anime but future versions may include other upscalers.  For version 1.0 image upscaling is handled by SRMD or RealSR, interpolation is achieved using RIFE.
 
