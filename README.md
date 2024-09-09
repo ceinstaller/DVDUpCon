@@ -20,7 +20,7 @@ Testing was done using Windows 10 & 11 with an NVidia GPU.  A check for an NVidi
 
 ## Usage
 
-Open a terminal (cmd) window and run dvdupcon.exe.  When promopted, enter the path to the file to be upconverted.  Answer a few questions about how you would like the upconversion to be handled.  (Which upscaler to use, scale factor, weather to use frame interpolation.)  The upconversion process will run and drop the upconverted video and the corresponding log file into the output directory.  Please see the manual for more information.
+Open a terminal (cmd) window and run dvdupcon.exe.  When promopted, enter the path to the file to be upconverted.  Answer a few questions about how you would like the upconversion to be handled.  (Which upscaler to use, scale factor, whether to use frame interpolation.)  The upconversion process will run and drop the upconverted video and the corresponding log file into the output directory.  Please see the manual for more information.
 
 ## Known Issues
 
