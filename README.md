@@ -4,8 +4,6 @@
 
 </div>
 
-# DVDUpCon
-
 DVDUpCon is an open source tool for upconverting video files.
 
 ## What and Why
