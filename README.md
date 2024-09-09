@@ -1,3 +1,9 @@
+<div align="center">
+
+<img src="./images/DVDUpCon_Logo.png" alt="DVDUpCon Logo" width="488" height="132"/>
+
+</div>
+
 # DVDUpCon
 
 DVDUpCon is an open source tool for upconverting video files.
