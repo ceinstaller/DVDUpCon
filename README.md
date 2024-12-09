@@ -16,11 +16,11 @@ After using other open source and commercial tools, I was stymied by two issues.
 
 ## Requirements
 
-Testing was done using Windows 10 & 11 with an NVidia GPU.  A check for an NVidia GPU is done at program startup.  AMD GPU testing is on my list of things to do for a future version.  
+Testing was done using Windows 10 & 11 with an NVidia GPU.  A check for an NVidia GPU is done at program startup.  (GPU check can be skipped using command line option.  See documentation for details.)  Additional GPU testing is on my list of things to do for a future version.  
 
 ## Usage
 
-Open a terminal (cmd) window and run dvdupcon.exe.  When promopted, enter the path to the file to be upconverted.  Answer a few questions about how you would like the upconversion to be handled.  (Which upscaler to use, scale factor, whether to use frame interpolation.)  The upconversion process will run and drop the upconverted video and the corresponding log file into the output directory.  Please see the manual for more information.
+Open a terminal (cmd) window and run dvdupcon.exe.  When promopted, enter the path to the file to be upconverted.  Answer a few questions about how you would like the upconversion to be handled.  (Which upscaler to use, scale factor, whether to use frame interpolation.)  The upconversion process will run and drop the upconverted video and the corresponding log file into the output directory.  Please see the manual for more information, including command line options.
 
 ## Known Issues
 

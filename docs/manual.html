@@ -33,6 +33,7 @@
                         <li><a href="#usage-upscaler">Upscaler</a></li>
                         <li><a href="#usage-scale">Scale Factor</a></li>
                         <li><a href="#usage-interpolation">Interpolation</a></li>
+                        <li><a href="#usage-options">Options</a></li>
                     </ul>
 
                     <li class="menu-sub-heading"><a href="#settings">Settings</a></li>
@@ -70,9 +71,9 @@
                 </p>
                 <p>
                     <ul>
-                        <li>Testing was done on a NVidia GPU and for now is a requirement.</li>
+                        <li>Testing was done on a NVidia GPU.</li>
                         <li>The primary focus is on real world video. Future versions may add new upscalers and models.</li>
-                        <li>Version 1.0 is a command line tool but a future version will have a Windows GUI.</li>
+                        <li>Version 1.5 is a command line tool but a future version will have a Windows GUI.</li>
                     </ul>
                 </p>
  
@@ -111,6 +112,44 @@
                     This means a 24 fps video will become a 48 fps video and a 30 fps video will become a 60 fps video.
                 </p>
                 
+                <h3 id="usage-options">Options</h3>
+                <p>
+                    DVDUpCon.exe will accept a number of command line options:
+                </p>
+
+                <p>
+                    <pre class="code-block">
+                        <code>
+                            DVDUpCon.exe -h
+                            DVDUpCon.exe --help
+                        </code>
+                    </pre>
+                    Display the help message.
+                </p>
+
+                <p>
+                    <pre class="code-block">
+                        <code>
+                            DVDUpCon.exe -r
+                            DVDUpCon.exe --reset
+                        </code>
+                    </pre>
+                    Reset by deleting all working files.
+                </p>
+
+                <p>
+                    <pre class="code-block">
+                        <code>
+                            DVDUpCon.exe -ng
+                            DVDUpCon.exe --nogpu
+                        </code>
+                    </pre>
+                    Skip check for existence of GPU.
+                    <br />
+                    (Use this if you have a non-Nvidia Vulkan compatible GPU.)
+                </p>
+
+
                 <hr class="section-break" />
                 
                 <h2 id="settings">Settings</h2>
@@ -275,17 +314,8 @@
                 <h3 id="trouble-restart">Restart</h3>
                 <p>
                     If a job fails and can't be recovered, a full restart may be required.
-                    From the dvdupcon directory, delete the dvdupcon.log file if it exists.
-                    Delete the files from the following directories:
-                    <ul>
-                        <li>extract/recovery</li>
-                        <li>extract (Don't delete the recovery directory)</li>
-                        <li>insert</li>
-                        <li>upscale</li>
-                        <li>stage</li>
-                        <li>output</li>
-                    </ul>
-                    Alternatively, the entire dvdupcon directory can be deleted and recreated from the original archive.
+                    Running DVDUpCon with the reset <a href="#usage-options">option</a> will delete all working files.
+                    After a reset is performed normal usage can resume.
                 </p>
 
 
@@ -300,7 +330,7 @@
                 </p>
                 <ul>
                     <li><a href="https://ffmpeg.org/">FFmpeg</a></li>
-                    <li><a href="https://github.com/nihui/srmd-ncnn-vulkan?tab=readme-ov-file">SRMD-NCNN-Vulkan</a></li>
+                    <li><a href="https://github.com/nihui/srmd-ncnn-vulkan">SRMD-NCNN-Vulkan</a></li>
                     <li><a href="https://github.com/nihui/realsr-ncnn-vulkan">RealSR-NCNN-Vulkan</a></li>
                     <li><a href="https://github.com/nihui/rife-ncnn-vulkan">RIFE-NCNN-Vulkan</a></li>
                 </ul>

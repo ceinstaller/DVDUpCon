@@ -6,6 +6,7 @@ import json
 import time
 import logging
 import configparser
+import argparse
 from math import gcd
 from PIL import ImageFile,Image
 
@@ -23,26 +24,27 @@ class Utils:
 
      # Check for NVidia GPU, if no GPU exit.
     def gpu():
-        try:
-            subprocess.run("nvidia-smi", capture_output=True)
-            gpu_check = 1
-        except:
-            print("It looks like you don't have NVidia drivers installed.")
-            gpu_check = 0
+        if not args.nogpu:
+            try:
+                subprocess.run("nvidia-smi", capture_output=True)
+                gpu_check = 1
+            except:
+                print("It looks like you don't have NVidia drivers installed.")
+                gpu_check = 0
 
-        if gpu_check == 1:
-            gpu = subprocess.run("nvidia-smi --query-gpu=name,power.limit,power.default_limit --format=csv,noheader", capture_output=True, text=True)
-            global gpu_name
-            gpu_stats = gpu.stdout.split(", ")
-            gpu_name = gpu_stats[0]
-            gpu_current_power = gpu_stats[1]
-            gpu_max_power = gpu_stats[2]
-            print("It looks like you have an " + gpu_name + ".  Nice.")
-            print("Current power: " + gpu_current_power)
-            print("Default power: "+ gpu_max_power)
-        else:
-            print("Please install the NVidia drivers.\n")
-            sys.exit()
+            if gpu_check == 1:
+                gpu = subprocess.run("nvidia-smi --query-gpu=name,power.limit,power.default_limit --format=csv,noheader", capture_output=True, text=True)
+                global gpu_name
+                gpu_stats = gpu.stdout.split(", ")
+                gpu_name = gpu_stats[0]
+                gpu_current_power = gpu_stats[1]
+                gpu_max_power = gpu_stats[2]
+                print("It looks like you have an " + gpu_name + ".  Nice.")
+                print("Current power: " + gpu_current_power)
+                print("Default power: "+ gpu_max_power)
+            else:
+                print("Please install the NVidia drivers.\n")
+                sys.exit()
 
     
     # Delete files from list of directories
@@ -56,6 +58,7 @@ class Utils:
                 for root, dirs, files in os.walk(dir, topdown=False):
                     for name in files:
                         os.remove(os.path.join(root, name))
+        print()                
 
 
 class DVD_Source:
@@ -112,7 +115,8 @@ class DVD_Source:
             dvd_source_duration = "Unknown"
 
         # Log source file values
-        logging.info(f"GPU - {gpu_name}")
+        if not args.nogpu:
+            logging.info(f"GPU - {gpu_name}")
         logging.info(f"Codec - {dvd_source_codec}")
         logging.info(f"Width - {dvd_source_size_width}")
         logging.info(f"Height - {dvd_source_size_height}")
@@ -346,185 +350,203 @@ class DVD_Restart:
     def __init__(self):
         pass
 
-
     def restart():
         print("It looks like a previous job didn't finish.  Let's see what happened.")
         print()
     
         # Process log file
         with open('dvdupcon.log') as log:
-            for line in log.readlines():
-                if 'File' in line:
-                    log_file = line.split(" - ",3)[3].strip()
-                if 'Aspect Ratio' in line:
-                    log_aspect = line.split(" - ",3)[3].strip()    
-                if 'Source Frame Rate' in line:
-                    log_framerate = line.split(" - ",3)[3].strip()
-                if 'Upscaler' in line:
-                    log_upscaler = line.split(" - ",3)[3].strip()
-                if 'Scale Factor' in line:
-                    log_scalefactor = line.split(" - ",3)[3].strip()
-                if 'Interpolation' in line:
-                    log_interpolation = line.split(" - ",3)[3].strip()
-                if 'Frame Count' in line:
-                    log_framecount = int(line.split(" - ",3)[3].strip())
-                    break
-                else:
-                    log_framecount = "NA"
-
-        # Get directory file counts
-        extracted_count = int(len(os.listdir("extract"))) -1   # Minus one for the recovery directory
-        upscaled_count = int(len(os.listdir("upscale")))
-        inserted_count = int(len(os.listdir("insert")))
-        stage_count = int(len(os.listdir("stage")))
-        output_count = int(len(os.listdir("output")))
-
-        # Display settings logged for failed run and file counts
-        print("Log Analysis")
-        print("============")
-        print("File: " + log_file)
-        print("Aspect Ratio: " + log_aspect)
-        print("Frame Rate: {:.2f}".format(float(log_framerate)))
-        print("Upscaler: " + log_upscaler)
-        print("Scale Factor: " + log_scalefactor)
-        print("Interpolation: " + log_interpolation)
-        print("Frame Count: " + str(log_framecount))
-        print() 
-        print("File Analysis")
-        print("=============")
-        print("Extracted Frames: " + str(extracted_count))
-        print("Upscaled Frames: " + str(upscaled_count))
-        print("Inserted Frames: " + str(inserted_count))
-        print("Stage Files: " + str(stage_count) + " of 1")
-        print("Output Files: " + str(output_count) + " of 2")
-        print()
-        
-        # Show the status of each step and set status variable so we know where to restart
-        if log_framecount == extracted_count:
-            print("It looks like we finished the frame extraction process.")
-            restart_step = 0
-
-        if log_framecount == "NA":
-            print("It looks like we didn't finish the frame extraction process.")
-            restart_step = 5
-        
-        if upscaled_count != extracted_count:
-            print("It looks like we didn't finish the upscaling process.")
-            if restart_step > 4:
-                restart_step
-            else:
-                restart_step = 4
-        elif upscaled_count == extracted_count:
-            print("It looks like we finished the upscale process.")
-        
-        if log_interpolation.strip() == "Y" and ((upscaled_count * 2) != inserted_count or upscaled_count == 0):
-            print("It looks like we didn't finish the frame interpolation process.")
-            if restart_step > 3:
-                restart_step
-            else:
-                restart_step = 3
-        elif log_interpolation.strip() == "Y" and (upscaled_count * 2) == inserted_count:
-            print("It looks like we finished the frame interpolation process.")
-
-        if stage_count == 0:
-            print("It looks like we didn't finish the frame assembly process.")
-            if restart_step > 2:
-                restart_step
-            else:
-                restart_step = 2
-        elif stage_count == 1:
-            print("It looks like we finished the frame assembly process.")
-        
-        if output_count < 2:
-            print("It looks like we didn't finish the final assembly process.")
-            if restart_step > 1:
-                restart_step
-            else:
-                restart_step = 1
-        elif output_count == 2:
-            print("It looks like we finished the final assembly process.")
-           
-        print()
-        if log_interpolation == "Y":
-            print("Steps needed to complete recovery: " + str(restart_step))
-        else:
-            print("Steps needed to complete recovery: " + str(restart_step - 1))
-        print()
-
-        while True:
-            restart = input("Would you like to recover the previous run or exit and restart? (R)ecover or (E)xit: ")
-
-            if restart.upper() not in {"R", "E"}:
-                print("Please enter R or E.")
-                continue
-            else:
-                break
-        print()
-        
-        if restart.upper() == "E":
-            # Delete files from working directories
-            if settings["General"]["SaveFiles"] == "No":
-                Utils.scrub(["extract", "upscale", "insert", "stage"])
+            log_text = log.readlines()
+            
+            # Get number of lines in log file
+            log_size = len(log_text)
+            
+            # If number of lines in log file = 2 then something went wrong during file analysis
+            if log_size <= 2:
+                print("There was an issue with the last run, perhaps an issue with the source file.  Please try again.")
+                logging.shutdown()
+                log.close()
                 os.remove("dvdupcon.log")
-            
-            # Exit recovery process
-            sys.exit()
+                    
+                # Exit recovery process
+                sys.exit()
 
-        else:
-            # Set mode to Recovery
-            mode = "R"
+            # It looks like we have a good source file but there was a failure during the upconversion job    
+            else:
+                for line in log_text:
+                    if 'File' in line:
+                        log_file = line.split(" - ",3)[3].strip()
+                    if 'Aspect Ratio' in line:
+                        log_aspect = line.split(" - ",3)[3].strip()    
+                    if 'Source Frame Rate' in line:
+                        log_framerate = line.split(" - ",3)[3].strip()
+                    if 'Upscaler' in line:
+                        log_upscaler = line.split(" - ",3)[3].strip()
+                    if 'Scale Factor' in line:
+                        log_scalefactor = line.split(" - ",3)[3].strip()
+                    if 'Interpolation' in line:
+                        log_interpolation = line.split(" - ",3)[3].strip()
+                    if 'Frame Count' in line:
+                        log_framecount = int(line.split(" - ",3)[3].strip())
+                        break
+                    else:
+                        log_framecount = "NA"
 
-            # Open log to append new entries
-            logging.basicConfig(level=logging.INFO, filename="dvdupcon.log", filemode="a",
-                                format="%(asctime)s - %(levelname)s - %(message)s")
-            logging.info("Restarting upscale from interrupted job.")
-            
-            # Extract Frames
-            if restart_step >= 5:
-                DVD_Process().extract_frames(log_file)
+                # Get directory file counts
+                extracted_count = int(len(os.listdir("extract"))) -1   # Minus one for the recovery directory
+                upscaled_count = int(len(os.listdir("upscale")))
+                inserted_count = int(len(os.listdir("insert")))
+                stage_count = int(len(os.listdir("stage")))
+                output_count = int(len(os.listdir("output")))
 
-            # Upscale Frames
-            if restart_step >= 4:
-                if log_upscaler[0] == "S":
-                    DVD_Process().srmd_upscale_frames(settings,log_scalefactor,mode)
-                else:
-                    DVD_Process().realsr_upscale_frames(log_scalefactor,mode)
-            
-            # If requested, add interpolated frames
-            if restart_step >= 3:
-                if log_interpolation == "Y":
-                    DVD_Process().add_frames(settings)
-            
-            # Assemble Upscale Frames
-            if restart_step >= 2:
-                DVD_Process().assemble_frames(float(log_framerate),log_aspect,log_interpolation)
-
-            # Assemble final video
-            if restart_step >= 1:
-                # Get short name from log file
-                log_short_name = os.path.splitext(os.path.basename(log_file))[0]
+                # Display settings logged for failed run and file counts
+                print("Log Analysis")
+                print("============")
+                print("File: " + log_file)
+                print("Aspect Ratio: " + log_aspect)
+                print("Frame Rate: {:.2f}".format(float(log_framerate)))
+                print("Upscaler: " + log_upscaler)
+                print("Scale Factor: " + log_scalefactor)
+                print("Interpolation: " + log_interpolation)
+                print("Frame Count: " + str(log_framecount))
+                print() 
+                print("File Analysis")
+                print("=============")
+                print("Extracted Frames: " + str(extracted_count))
+                print("Upscaled Frames: " + str(upscaled_count))
+                print("Inserted Frames: " + str(inserted_count))
+                print("Stage Files: " + str(stage_count) + " of 1")
+                print("Output Files: " + str(output_count) + " of 2")
+                print()
                 
-                # Apply audio to upscaled video to create final product
-                DVD_Process().assemble_video(log_short_name,log_file)
+                # Show the status of each step and set status variable so we know where to restart
+                if log_framecount == extracted_count:
+                    print("It looks like we finished the frame extraction process.")
+                    restart_step = 0
 
-            # Delete files from working directories
-            if settings["General"]["SaveFiles"] == "No":
-                Utils.scrub(["extract", "upscale", "insert", "stage"])
+                if log_framecount == "NA":
+                    print("It looks like we didn't finish the frame extraction process.")
+                    restart_step = 5
+                
+                if upscaled_count != extracted_count:
+                    print("It looks like we didn't finish the upscaling process.")
+                    if restart_step > 4:
+                        restart_step
+                    else:
+                        restart_step = 4
+                elif upscaled_count == extracted_count:
+                    print("It looks like we finished the upscale process.")
+                
+                if log_interpolation.strip() == "Y" and ((upscaled_count * 2) != inserted_count or upscaled_count == 0):
+                    print("It looks like we didn't finish the frame interpolation process.")
+                    if restart_step > 3:
+                        restart_step
+                    else:
+                        restart_step = 3
+                elif log_interpolation.strip() == "Y" and (upscaled_count * 2) == inserted_count:
+                    print("It looks like we finished the frame interpolation process.")
 
-            # Add final log entry, close log file and move to output directory
-            logging.info("Processing complete from recovered job!")
-            logging.shutdown()
-            os.rename("dvdupcon.log", ".\\output\\" + log_short_name + ".log")
-            
-            # Done!
-            print()
-            print(time.strftime("%Y-%m-%d %I:%M:%S %p") + " - Done!")
-            print()
-            print("Be sure to move your video and log file out of the output directory!")
-            print()
+                if stage_count == 0:
+                    print("It looks like we didn't finish the frame assembly process.")
+                    if restart_step > 2:
+                        restart_step
+                    else:
+                        restart_step = 2
+                elif stage_count == 1:
+                    print("It looks like we finished the frame assembly process.")
+                
+                if output_count < 2:
+                    print("It looks like we didn't finish the final assembly process.")
+                    if restart_step > 1:
+                        restart_step
+                    else:
+                        restart_step = 1
+                elif output_count == 2:
+                    print("It looks like we finished the final assembly process.")
+                
+                print()
+                if log_interpolation == "Y":
+                    print("Steps needed to complete recovery: " + str(restart_step))
+                else:
+                    print("Steps needed to complete recovery: " + str(restart_step - 1))
+                print()
 
-            # Exit from recovery
-            sys.exit()
+                while True:
+                    restart = input("Would you like to recover the previous run or exit and restart? (R)ecover or (E)xit: ")
+
+                    if restart.upper() not in {"R", "E"}:
+                        print("Please enter R or E.")
+                        continue
+                    else:
+                        break
+                print()
+                
+                if restart.upper() == "E":
+                    # Delete files from working directories
+                    if settings["General"]["SaveFiles"] == "No":
+                        Utils.scrub(["extract", "upscale", "insert", "stage"])
+                        os.remove("dvdupcon.log")
+                    
+                    # Exit recovery process
+                    sys.exit()
+
+                else:
+                    # Set mode to Recovery
+                    mode = "R"
+
+                    # Open log to append new entries
+                    logging.basicConfig(level=logging.INFO, filename="dvdupcon.log", filemode="a",
+                                        format="%(asctime)s - %(levelname)s - %(message)s")
+                    logging.info("Restarting upscale from interrupted job.")
+                    
+                    # Extract Frames
+                    if restart_step >= 5:
+                        DVD_Process().extract_frames(log_file)
+
+                    # Upscale Frames
+                    if restart_step >= 4:
+                        if log_upscaler[0] == "S":
+                            DVD_Process().srmd_upscale_frames(settings,log_scalefactor,mode)
+                        else:
+                            DVD_Process().realsr_upscale_frames(log_scalefactor,mode)
+                    
+                    # If requested, add interpolated frames
+                    if restart_step >= 3:
+                        if log_interpolation == "Y":
+                            DVD_Process().add_frames(settings)
+                    
+                    # Assemble Upscale Frames
+                    if restart_step >= 2:
+                        DVD_Process().assemble_frames(float(log_framerate),log_aspect,log_interpolation)
+
+                    # Assemble final video
+                    if restart_step >= 1:
+                        # Get short name from log file
+                        log_short_name = os.path.splitext(os.path.basename(log_file))[0]
+                        
+                        # Apply audio to upscaled video to create final product
+                        DVD_Process().assemble_video(log_short_name,log_file)
+
+                    # Delete files from working directories
+                    if settings["General"]["SaveFiles"] == "No":
+                        Utils.scrub(["extract", "upscale", "insert", "stage"])
+
+                    # Add final log entry, close log file and move to output directory
+                    logging.info("Processing complete from recovered job!")
+                    logging.shutdown()
+                    log.close()
+                    os.rename("dvdupcon.log", ".\\output\\" + log_short_name + ".log")
+                    
+                    # Done!
+                    print(time.strftime("%Y-%m-%d %I:%M:%S %p") + " - Done!")
+                    print()
+                    print("Be sure to move your video and log file out of the output directory!")
+                    if settings["General"]["SaveFiles"] == "Yes":
+                        print("(Note: The working files are still in place.)")
+                    print()
+
+                    # Exit from recovery
+                    sys.exit()
 
 
 ################
@@ -535,10 +557,30 @@ class DVD_Restart:
 settings = configparser.ConfigParser()
 settings.read("settings.ini")
 
+# Establish command line arguments
+parser = argparse.ArgumentParser()
+
+parser.add_argument("-r", "--reset", help="reset by deleting all working files", action="store_true")
+parser.add_argument("-ng", "--nogpu", help="skip check for existence of gpu", action="store_true")
+
+args = parser.parse_args()
+
+# Reset program by deleting all working files
+if args.reset:
+    Utils.scrub(["extract", "upscale", "insert", "stage", "output"])
+    
+    if os.path.exists("dvdupcon.log"):
+        os.remove("dvdupcon.log")
+    
+    print("Reset complete")
+
+    # Exit from reset
+    sys.exit()
+
 # Print friendly welcome message.
 print()
 print("Welcome to DVDUpCon!")
-print("======= v1.0 =======")
+print("======= v1.5 =======")
 print()
 
 # Check for existing log file on startup.  If exists, assume process failed and begin recovery
@@ -675,8 +717,9 @@ logging.shutdown()
 os.rename("dvdupcon.log", ".\\output\\" + dvd_short_name + ".log")
 
 # Done!
-print()
 print(time.strftime("%Y-%m-%d %I:%M:%S %p") + " - Done!")
 print()
 print("Be sure to move your video and log file out of the output directory!")
+if settings["General"]["SaveFiles"] == "Yes":
+    print("(Note: The working files are still in place.)")
 print()
